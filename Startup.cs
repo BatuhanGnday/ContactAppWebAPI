@@ -45,6 +45,8 @@ namespace ContactApp
             // DI
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IContactService, ContactService>();
+            
 
             services.AddHttpContextAccessor();
 

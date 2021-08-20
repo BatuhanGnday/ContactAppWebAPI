@@ -1,5 +1,7 @@
+using System;
+using ContactApp.Entities;
 using ContactApp.Helpers;
-using ContactApp.Services.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactApp.Controllers
@@ -9,13 +11,20 @@ namespace ContactApp.Controllers
     [Route("/hello-world")]
     public class HelloWorldController
     {
-        [HttpPost]
-        public ActionResult<HelloWorldResponse> HelloWorld([FromBody] HelloWorldRequest request)
+        private readonly IHttpContextAccessor _accessor;
+
+        public HelloWorldController(IHttpContextAccessor accessor)
         {
-            return new HelloWorldResponse
-            {
-                Username = ">username<"
-            };
+            _accessor = accessor;
+        }
+
+        [HttpPost]
+        public ActionResult<string> HelloWorld()
+        {
+            if (_accessor.HttpContext == null) return new UnauthorizedResult();
+            var user = (User)_accessor.HttpContext.Items["User"]!;
+            
+            return user.Password;
         }
     }
 }

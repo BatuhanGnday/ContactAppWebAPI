@@ -12,7 +12,10 @@ namespace ContactApp.Services
     public interface IUserService
     {
         public IEnumerable<User> GetUsers();
+        public ActionResult<User> GetUserByGuidApi(string guid);
         public User GetUserByGuid(string guid);
+
+
     }
     public class UserService: IUserService
     {
@@ -28,11 +31,23 @@ namespace ContactApp.Services
             return _applicationContext.Users.ToList();
         }
 
+        public ActionResult<User> GetUserByGuidApi(string guid)
+        {
+            var tryParse = Guid.TryParse(guid, out var id);
+            if (!tryParse)
+            {
+                return new NotFoundResult();
+            }
+
+            return _applicationContext.Users.Find(id);
+        }
+        
         public User GetUserByGuid(string guid)
         {
-            var iGuid = new Guid(guid);
+            var tryParse = Guid.TryParse(guid, out var id);
 
-            return _applicationContext.Users.Find(iGuid);
+            return _applicationContext.Users.Find(id);
         }
+
     }
 }

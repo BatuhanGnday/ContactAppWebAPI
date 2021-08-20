@@ -1,11 +1,12 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContactApp.Entities
 {
     public class Contact
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Guid { get; set; }
 
         public User Owner { get; set; }
@@ -20,5 +21,13 @@ namespace ContactApp.Entities
         
         public string District { get; set; }
 
+        public Contact(string fullName, string phoneNumber, string address, string province, string district)
+        {
+            FullName = fullName;
+            PhoneNumber = phoneNumber;
+            Address = address;
+            Province = province;
+            District = district;
+        }
     }
 }
