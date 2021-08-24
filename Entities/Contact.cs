@@ -21,13 +21,5 @@ namespace ContactApp.Entities
         
         public string District { get; set; }
 
-        public Contact(string fullName, string phoneNumber, string address, string province, string district)
-        {
-            FullName = fullName;
-            PhoneNumber = phoneNumber;
-            Address = address;
-            Province = province;
-            District = district;
-        }
     }
 }

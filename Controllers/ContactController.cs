@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using ContactApp.Dto;
 using ContactApp.Entities;
 using ContactApp.Helpers;
+using ContactApp.Helpers.Auth;
 using ContactApp.Services;
 using ContactApp.Services.Models.Contacts;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ContactApp.Controllers
@@ -45,7 +48,7 @@ namespace ContactApp.Controllers
             return _contactService.DeleteContactById(guid);
         }
         [HttpPost]
-        public ActionResult<Contact> CreateContact([FromBody] CreateContactRequestBody requestBody)
+        public ActionResult<ContactDto> CreateContact([FromBody] CreateContactRequestBody requestBody)
         {
             if (_httpContextAccessor.HttpContext == null) return new UnauthorizedResult();
             var user = (User)_httpContextAccessor.HttpContext.Items["User"]!;
@@ -53,7 +56,6 @@ namespace ContactApp.Controllers
         }
 
         [HttpPatch("{contactGuid}")]
-        [Authorize]
         public ActionResult<Contact> UpdateContactPartially([FromBody] CreateContactRequestBody body, string contactGuid)
         {
             if (_httpContextAccessor.HttpContext == null) return new UnauthorizedResult();

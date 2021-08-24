@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ using ContactApp.Helpers;
 using ContactApp.Services.Models.Auth.login;
 using ContactApp.Services.Models.Auth.Register;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,25 +33,35 @@ namespace ContactApp.Services
 
         public ActionResult<LoginResponse> Login(LoginRequestBody requestBody)
         {
-            var user = _applicationContext.Users.FirstOrDefault(e => e.Username == requestBody.Username && e.Password == requestBody.Password);
+            var user = _applicationContext.Users.Include(user1 => user1.Roles).FirstOrDefault(e => e.UserName == requestBody.Username && e.Password == requestBody.Password);
             if (user==null)
             {
                 return new UnauthorizedResult();
             }
             var token = GenerateJwtToken(user);
+            Console.WriteLine(user.Roles.Count);
             
-            return new LoginResponse(token, user);
+            HashSet<RolePermissions[]> permissionsArray = user.Roles.Select(e => e.Permissions).ToHashSet();
+            var permissions = permissionsArray.SelectMany(x => x).Distinct();
+
+            return new LoginResponse{Token = token, Permissions = permissions.ToArray()};
         }
 
         public ActionResult<User> Register(RegisterRequestBody requestBody)
         {
-            var userExistByUsername = _applicationContext.Users.Any(x => x.Username == requestBody.Username);
+            var userExistByUsername = _applicationContext.Users.Any(x => x.UserName == requestBody.Username);
             if (userExistByUsername)
             {
                 return new ConflictResult();
             }
 
-            var user = new User(requestBody.Username, requestBody.Password, requestBody.Email, requestBody.FullName);
+            var user = new User()
+            {
+                UserName = requestBody.Username,
+                Password = requestBody.Password,
+                Email = requestBody.Email,
+                FullName = requestBody.FullName
+            };
             
             _applicationContext.Users.Add(user);
             _applicationContext.SaveChanges();

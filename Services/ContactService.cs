@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AutoMapper;
+using ContactApp.Dto;
 using ContactApp.Entities;
 using ContactApp.Services.Models.Contacts;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +14,7 @@ namespace ContactApp.Services
 {
     public interface IContactService
     {
-        public ActionResult<Contact> CreateContact(CreateContactRequestBody requestBody, User activeUser);
+        public ActionResult<ContactDto> CreateContact(CreateContactRequestBody requestBody, User activeUser);
         public ActionResult<Contact> GetContactById(string id);
         public ActionResult<IEnumerable<Contact>> GetContacts();
 
@@ -27,27 +29,33 @@ namespace ContactApp.Services
     }
     public class ContactService: IContactService
     {
-        private readonly ApplicationContext _applicationContext = new();
+        private readonly IMapper _mapper;
+        private readonly ApplicationContext _applicationContext;
 
-        public ActionResult<Contact> CreateContact(CreateContactRequestBody requestBody, User activeUser)
+        public ContactService(IMapper mapper, ApplicationContext applicationContext)
         {
-            var contactTemp = new Contact
-            (
-                requestBody.FullName,
-                requestBody.PhoneNumber,
-                requestBody.Address,
-                requestBody.Province,
-                requestBody.District
-            )
+            _mapper = mapper;
+            _applicationContext = applicationContext;
+        }
+
+        public ActionResult<ContactDto> CreateContact(CreateContactRequestBody requestBody, User activeUser)
+        {
+            var contactTemp = new Contact()
             {
+                FullName = requestBody.FullName,
+                PhoneNumber = requestBody.PhoneNumber,
+                Address = requestBody.Address,
+                Province = requestBody.Province,
+                District = requestBody.District,
                 Owner = activeUser
             };
 
             _applicationContext.Entry(contactTemp.Owner).State = EntityState.Unchanged;
             _applicationContext.Contacts.Add(contactTemp);
+            ContactDto result = _mapper.Map<ContactDto>(contactTemp);
             
             _applicationContext.SaveChanges();
-            return contactTemp;
+            return result;
         }
 
         public ActionResult<Contact> GetContactById(string id)

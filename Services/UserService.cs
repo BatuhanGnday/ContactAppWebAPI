@@ -6,6 +6,7 @@ using ContactApp.Entities;
 using ContactApp.Services.Models.Auth.login;
 using ContactApp.Services.Models.Users;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ContactApp.Services
 {
@@ -46,7 +47,7 @@ namespace ContactApp.Services
         {
             var tryParse = Guid.TryParse(guid, out var id);
 
-            return _applicationContext.Users.Find(id);
+            return _applicationContext.Users.Include(e => e.Roles).First(t => t.Guid == id);
         }
 
     }
