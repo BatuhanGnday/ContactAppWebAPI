@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ContactApp.Dto;
 using ContactApp.Entities;
 using ContactApp.Services;
 using ContactApp.Services.Models.Users;
@@ -21,7 +22,7 @@ namespace ContactApp.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<User> GetUsers()
+        public IEnumerable<UserDto> GetUsers()
         {
             return _userService.GetUsers();
         }

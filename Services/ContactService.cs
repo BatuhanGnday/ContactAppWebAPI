@@ -16,13 +16,12 @@ namespace ContactApp.Services
     {
         public ActionResult<ContactDto> CreateContact(CreateContactRequestBody requestBody, User activeUser);
         public ActionResult<Contact> GetContactById(string id);
-        public ActionResult<IEnumerable<Contact>> GetContacts();
 
         public ActionResult<Contact> UpdateContactPartially(User activeUser, CreateContactRequestBody body,
             string contactGuid);
         public ActionResult<Contact> DeleteContactById(string guid);
 
-        public ActionResult<IEnumerable<Contact>> GetContacts(string? name, string? phoneNumber, string? address,
+        public ActionResult<IEnumerable<ContactDto>> GetContacts(string? name, string? phoneNumber, string? address,
             string? province, string? district);
 
         public ActionResult<IEnumerable<Contact>> GetContactsByUserId(string guid);
@@ -75,12 +74,7 @@ namespace ContactApp.Services
             return result;
         }
 
-        public ActionResult<IEnumerable<Contact>> GetContacts()
-        {
-            return _applicationContext.Contacts.Include(p=> p.Owner).ToList();
-        }
-
-        public ActionResult<IEnumerable<Contact>> GetContacts(
+        public ActionResult<IEnumerable<ContactDto>> GetContacts(
             string? name,
             string? phoneNumber,
             string? address,
@@ -110,7 +104,9 @@ namespace ContactApp.Services
                 results = results.Where(c => EF.Functions.ILike(c.District, $"%{district}%"));
             }
             
-            return results.Include(c=>c.Owner).ToList();
+            var contacts = results.Include(c=>c.Owner).ToList();
+            var result = _mapper.Map<IEnumerable<ContactDto>>(contacts);
+            return new ActionResult<IEnumerable<ContactDto>>(result);
         }
 
         public ActionResult<IEnumerable<Contact>> GetContactsByUserId(string guid)

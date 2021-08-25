@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using ContactApp.Dto;
 using ContactApp.Entities;
+using ContactApp.Helpers.Mapper;
 using ContactApp.Services.Models.Auth.login;
 using ContactApp.Services.Models.Users;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +16,7 @@ namespace ContactApp.Services
 {
     public interface IUserService
     {
-        public IEnumerable<User> GetUsers();
+        public IEnumerable<UserDto> GetUsers();
         public ActionResult<User> GetUserByGuidApi(string guid);
         public User GetUserByGuid(string guid);
 
@@ -20,16 +24,21 @@ namespace ContactApp.Services
     }
     public class UserService: IUserService
     {
+        private readonly IMapper _mapper;
         private readonly ApplicationContext _applicationContext;
 
-        public UserService(ApplicationContext applicationContext)
+        public UserService(ApplicationContext applicationContext, IMapper mapper)
         {
             _applicationContext = applicationContext;
+            _mapper = mapper;
         }
 
-        public IEnumerable<User> GetUsers()
+        public IEnumerable<UserDto> GetUsers()
         {
-            return _applicationContext.Users.ToList();
+            var users = _applicationContext.Users
+                .Include(e => e.Roles).ToList();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+            //return users;
         }
 
         public ActionResult<User> GetUserByGuidApi(string guid)

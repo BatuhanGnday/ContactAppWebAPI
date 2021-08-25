@@ -1,4 +1,8 @@
 using System.Text.Json.Serialization;
+using AutoMapper;
+using AutoMapper.Configuration.Conventions;
+using AutoMapper.EquivalencyExpression;
+using AutoMapper.Extensions.EnumMapping;
 using ContactApp.Helpers;
 using ContactApp.Helpers.Auth;
 using ContactApp.Services;
@@ -38,7 +42,8 @@ namespace ContactApp
 
             services.AddHttpContextAccessor();
 
-            services.AddAutoMapper(typeof(Startup));
+            ConfigureAutoMapper(services);
+            //services.AddAutoMapper(typeof(Startup));
             
 
             ConfigureSwaggerAuth(services);
@@ -70,6 +75,14 @@ namespace ContactApp
             app.UseMiddleware<JwtMiddleware>();
             
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        private static void ConfigureAutoMapper(IServiceCollection services)
+        {
+            services.AddAutoMapper((automapper) =>
+            {
+                automapper.EnableEnumMappingValidation();
+            }, typeof(Startup));
         }
 
         private static void EnsureDatabaseIsCreated()

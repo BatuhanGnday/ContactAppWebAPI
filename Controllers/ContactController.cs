@@ -26,7 +26,7 @@ namespace ContactApp.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Contact>> GetContacts(
+        public ActionResult<IEnumerable<ContactDto>> GetContacts(
             [FromQuery] string? name,
             [FromQuery] string? phoneNumber,
             [FromQuery] string? address,
